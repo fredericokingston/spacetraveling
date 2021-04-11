@@ -1,1 +1,45 @@
-// TODO
+.content {
+  max-width: 700px;
+  margin: 2rem auto;
+
+  display: flex;
+  justify-content: left;
+  flex-direction: column;
+
+  strong {
+    font-size: 1.75rem;
+    line-height: 2rem;
+    color: var(--heading);
+  }
+
+  p {
+    font-size: 1.125rem;
+    margin-top: 1rem;
+  }
+
+  ul {
+    list-style: none;
+    margin-top: 1.5rem;
+
+
+    li {
+      display: inline;
+
+      & + li {
+        margin-left: 2rem;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      span {
+        font-size: 0.875rem;
+        color: var(--info);
+        margin-left: 0.625rem;
+      }
+
+    }
+  }
+}
