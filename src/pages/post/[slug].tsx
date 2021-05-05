@@ -1,14 +1,12 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { FiCalendar, FiUser } from 'react-icons/fi';
 import Head from 'next/head';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Header from '../../components/Header';
-
 import { getPrismicClient } from '../../services/prismic';
-
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
-interface Post {
+interface Article {
   first_publication_date: string | null;
   data: {
     title: string;
@@ -26,10 +24,10 @@ interface Post {
 }
 
 interface PostProps {
-  post: Post;
+  article: Article;
 }
 
-export default function Post(): JSX.Element {
+export default function Post({ article }: PostProps): JSX.Element {
   return (
     <>
       <Head>
@@ -49,6 +47,10 @@ export default function Post(): JSX.Element {
               <li>
                 <FiUser />
                 <span>John Doe</span>
+              </li>
+              <li>
+                <FiClock />
+                <span>5 min</span>
               </li>
             </ul>
           </div>
@@ -84,16 +86,42 @@ export default function Post(): JSX.Element {
   );
 }
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient();
-//   const posts = await prismic.query(TODO);
+export const getStaticPaths: GetStaticPaths = async () => {
+  // const prismic = getPrismicClient();
+  // const posts = await prismic.query(TODO);
 
-//   // TODO
-// };
+  return {
+    paths: [],
+    fallback: true,
+  };
+};
 
-// export const getStaticProps = async context => {
-//   const prismic = getPrismicClient();
-//   const response = await prismic.getByUID(TODO);
+export const getStaticProps: GetStaticProps = async context => {
+  const prismic = getPrismicClient();
+  const { slug } = context.params;
+  const response = await prismic.getByUID('post', String(slug), {});
 
-//   // TODO
-// };
+  const article = {
+    uid: response.uid,
+    first_publication_date: response.first_publication_date,
+    data: {
+      title: response.data.title,
+      subtitle: response.data.subtitle,
+      author: response.data.author,
+      banner: {
+        url: response.data.banner.url,
+      },
+      content: response.data.content.map(content => {
+        return {
+          heading: content.heading,
+          body: [...content.body],
+        };
+      }),
+    },
+  };
+  return {
+    props: {
+      article,
+    },
+  };
+};
