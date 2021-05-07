@@ -113,7 +113,7 @@ export const getStaticProps: GetStaticProps = async context => {
       },
       content: response.data.content.map(content => {
         return {
-          heading: content.heading,
+          heading: content.heding,
           body: [...content.body],
         };
       }),
