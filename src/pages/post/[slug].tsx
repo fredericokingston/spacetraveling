@@ -1,12 +1,21 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-return-assign */
+/* eslint-disable react/no-danger */
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import { RichText } from 'prismic-dom';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import Prismic from '@prismicio/client';
+import { useRouter } from 'next/router';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
+
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
-interface Article {
+interface Post {
   first_publication_date: string | null;
   data: {
     title: string;
@@ -24,62 +33,73 @@ interface Article {
 }
 
 interface PostProps {
-  article: Article;
+  post: Post;
 }
 
-export default function Post({ article }: PostProps): JSX.Element {
+export default function Post({ post }: PostProps): JSX.Element {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return <h1>Carregando...</h1>;
+  }
+
+  const totalWords = post.data.content.reduce((total, contentItem) => {
+    total += contentItem.heading.split(' ').length;
+
+    const words = contentItem.body.map(item => item.text.split(' ').length);
+    words.map(word => (total += word));
+    return total;
+  }, 0);
+
+  const readTime = Math.ceil(totalWords / 200);
+
+  const formatedDate = format(
+    new Date(post.first_publication_date),
+    'dd MMM yyyy',
+    {
+      locale: ptBR,
+    }
+  );
+
   return (
     <>
       <Head>
-        <title>Título do Post | spacetraveling.</title>
+        <title>{post.data.title} | spacetraveling.</title>
       </Head>
       <Header />
-      <img src="/images/image1.jpg" alt="banner" className={styles.banner} />
+      <img src={post.data.banner.url} alt="banner" className={styles.banner} />
       <main className={commonStyles.container}>
         <div className={styles.post}>
           <div className={styles.postHeader}>
-            <h1>Título do post</h1>
+            <h1>{post.data.title}</h1>
             <ul>
               <li>
                 <FiCalendar />
-                <span>12 mar 2021</span>
+                {formatedDate}
               </li>
               <li>
                 <FiUser />
-                <span>John Doe</span>
+                {post.data.author}
               </li>
               <li>
                 <FiClock />
-                <span>5 min</span>
+                {`${readTime} min`}
               </li>
             </ul>
           </div>
-          <article>
-            <h2>Texto do conteúdo</h2>
-            <p>
-              Consectetur veniam mollit veniam dolor exercitation culpa laborum
-              non. Dolor mollit veniam nisi ad aliqua magna aute nostrud aute
-              pariatur. Commodo minim id ullamco consectetur labore mollit
-              cupidatat anim nulla sint exercitation esse ut. Do aliqua magna
-              laboris excepteur anim aliquip eiusmod sint Lorem. Nostrud
-              reprehenderit officia fugiat ea reprehenderit veniam consectetur
-              laboris ipsum sunt. Nulla labore ut commodo culpa et proident.
-              Consequat tempor ipsum est qui cupidatat deserunt esse sit cillum
-              cupidatat officia.
-            </p>
-            <h2>Dolor mollit veniam</h2>
-            <p>
-              Ea aliqua incididunt ex ut enim cillum. Tempor do qui elit aliquip
-              ut duis quis ad aliqua nisi irure qui enim. Culpa Lorem excepteur
-              amet irure quis mollit eiusmod veniam voluptate. Id exercitation
-              do magna aliquip deserunt qui exercitation sint do irure laborum
-              exercitation. Ex culpa nisi aliqua ex magna voluptate officia
-              proident dolore consectetur labore culpa esse nulla. Quis irure
-              Lorem sint sit consequat eiusmod cupidatat dolore. Voluptate duis
-              quis id qui cupidatat anim qui reprehenderit aute irure sit ex
-              irure eiusmod. Mollit sunt exercitation et non ullamco minim.
-            </p>
-          </article>
+          {post.data.content.map(content => {
+            return (
+              <article key={content.heading}>
+                <h2>{content.heading}</h2>
+                <div
+                  className={styles.postContent}
+                  dangerouslySetInnerHTML={{
+                    __html: RichText.asHtml(content.body),
+                  }}
+                />
+              </article>
+            );
+          })}
         </div>
       </main>
     </>
@@ -87,11 +107,21 @@ export default function Post({ article }: PostProps): JSX.Element {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // const prismic = getPrismicClient();
-  // const posts = await prismic.query(TODO);
+  const prismic = getPrismicClient();
+  const posts = await prismic.query([
+    Prismic.Predicates.at('document.type', 'post'),
+  ]);
+
+  const paths = posts.results.map(post => {
+    return {
+      params: {
+        slug: post.uid,
+      },
+    };
+  });
 
   return {
-    paths: [],
+    paths,
     fallback: true,
   };
 };
@@ -101,7 +131,7 @@ export const getStaticProps: GetStaticProps = async context => {
   const { slug } = context.params;
   const response = await prismic.getByUID('post', String(slug), {});
 
-  const article = {
+  const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
     data: {
@@ -113,7 +143,7 @@ export const getStaticProps: GetStaticProps = async context => {
       },
       content: response.data.content.map(content => {
         return {
-          heading: content.heding,
+          heading: content.heading,
           body: [...content.body],
         };
       }),
@@ -121,7 +151,7 @@ export const getStaticProps: GetStaticProps = async context => {
   };
   return {
     props: {
-      article,
+      post,
     },
   };
 };
