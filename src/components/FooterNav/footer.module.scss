@@ -1,0 +1,29 @@
+.container {
+  width: 100%;
+
+  border-top: solid 1px;
+  border-color: var(--body);
+
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  h4 {
+    font-size: 1.125rem;
+    color: var(--heading);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+  a {
+    color: var(--highlight);
+    font-weight: 600;
+  }
+
+  .nextPost{
+    text-align: right;
+  }
+}
