@@ -23,7 +23,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.spec.tsx"
-  ],
+, "src/pages/api/preview.js"  ],
   "exclude": [
     "node_modules"
   ]

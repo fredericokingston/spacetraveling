@@ -13,7 +13,7 @@ export function Comments(): JSX.Element {
     );
     script.setAttribute('issue-term', 'pathname');
     script.setAttribute('label', 'comment :speech_balloon:');
-    script.setAttribute('theme', 'photon-dark');
+    script.setAttribute('theme', 'github-dark');
     script.setAttribute('crossorigin', 'anonymous');
     const scriptParentNode = document.getElementById(commentNodeId);
     scriptParentNode.appendChild(script);
