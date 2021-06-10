@@ -22,8 +22,14 @@
     color: var(--highlight);
     font-weight: 600;
   }
-
+  .previousPost{
+    text-align: left;
+    max-width: 50%;
+    margin-right: auto;
+  }
   .nextPost{
     text-align: right;
+    max-width: 50%;
+    margin-left: auto;
   }
 }

@@ -101,15 +101,15 @@ export default function Post({
             <ul>
               <li>
                 <FiCalendar />
-                {formatedDate}
+                <span>{formatedDate}</span>
               </li>
               <li>
                 <FiUser />
-                {post.data.author}
+                <span>{post.data.author}</span>
               </li>
               <li>
                 <FiClock />
-                {`${readTime} min`}
+                <span>{`${readTime} min`}</span>
               </li>
             </ul>
           </div>

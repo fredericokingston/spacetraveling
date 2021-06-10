@@ -1,6 +1,9 @@
-.posts {
-  margin-top: 2em;
+.headerWraper {
+  margin-top: 2rem;
+  margin-bottom: -2rem;
+}
 
+.posts {
   > a {
     display: block;
   }

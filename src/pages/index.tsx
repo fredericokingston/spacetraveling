@@ -92,9 +92,12 @@ export default function Home({
       <Head>
         <title>Home | spacetraveling.</title>
       </Head>
-      <main className={commonStyles.container}>
-        <Header />
 
+      <div className={styles.headerWraper}>
+        <Header />
+      </div>
+
+      <main className={commonStyles.container}>
         <div className={styles.posts}>
           {posts.map(post => (
             <Link href={`/post/${post.uid}`} key={post.uid}>
